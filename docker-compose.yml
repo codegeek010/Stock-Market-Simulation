@@ -1,0 +1,77 @@
+version: "3.7"
+
+services:
+  # FastAPI application service
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+      - kafka
+      - zookeeper
+    env_file:
+      - .env
+
+  # Celery worker service
+  celery:
+    build: .
+    command: celery -A celery_service.celery worker --loglevel=info
+    depends_on:
+      - db
+      - redis
+      - kafka
+
+  # Celery Flower service
+  flower:
+    build: .
+    command: celery -A celery_service.celery flower
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "5555:5555"
+
+  # PostgreSQL database service
+  db:
+    container_name: db
+    hostname: db
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: stock_market_simulation
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  # Redis service
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  zookeeper:
+      image: bitnami/zookeeper:latest
+      ports:
+          - 2181:2181
+      environment:
+          - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+      image: bitnami/kafka:latest
+      ports:
+          - 9092:9092
+          - 9093:9093
+      environment:
+          - KAFKA_BROKER_ID=1
+          - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+          - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
+          - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+          - ALLOW_PLAINTEXT_LISTENER=yes
+          - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT
+          - KAFKA_CFG_LISTENERS=CLIENT://:9092
+          - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092
+          - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+      depends_on:
+          - zookeeper

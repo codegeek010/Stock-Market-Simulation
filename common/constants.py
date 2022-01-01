@@ -1,0 +1,8 @@
+USERNAME_EXISTS = "Username already exists"
+USER_CREATED = "User created successfully"
+WRONG_CREDENTIALS = "Incorrect username or password"
+NO_DATA_FOUND = "No data found"
+DATA_SAVED_SUCCESSFULLY = "Data Saved Successfully"
+INSUFFICIENT_BALANCE = "Insufficient balance"
+TRANSACTION_CREATED = "Transaction created successfully"
+INVALID_DATE_FORMAT = "Invalid date format. Use 'YYYY-MM-DD HH:MM:SS'"
